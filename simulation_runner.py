@@ -1,47 +1,30 @@
+import streamlit as st
 import pandas as pd
 import plotly.express as px
-import streamlit as st
 from scripts.material_analysis import load_material_data, calculate_emissions
-from scripts.health_impact_model import calculate_health_risks
 
-# Load material data and health data
+# Load material data from CSV
 material_data = load_material_data('./data/material_data.csv')
 
-# Calculate emissions
+# Check the columns in the material data
+st.write("Material Data Columns: ", material_data.columns)
+
+# Calculate emissions based on loaded material data
 material_data = calculate_emissions(material_data)
 
-# Simulate health risks based on material emissions
-health_data = pd.read_csv('./data/health_data.csv')
-simulation_results = calculate_health_risks(material_data, health_data)
+# Ensure the 'Yearly_Emission' column exists
+st.write("Material Data with Emissions: ", material_data.head())
 
-# Ensure 'Yearly_Emission' and 'Health_Risk' are numeric
-simulation_results['Yearly_Emission'] = pd.to_numeric(simulation_results['Yearly_Emission'], errors='coerce')
-simulation_results['Health_Risk'] = pd.to_numeric(simulation_results['Health_Risk'], errors='coerce')
+# Perform your simulation calculations or any other logic here (if needed)
 
-# Save the simulation results to a CSV file
-simulation_results.to_csv('./results/health_simulation_results.csv', index=False)
+# Display the results in Streamlit
+st.write("Simulation Results", material_data)
 
-# Display the simulation results in the Streamlit app
-st.title("Construction Health Simulation Results")
-st.subheader("The simulation results are shown below:")
-st.write(simulation_results)
-
-# Check the structure of the simulation results (useful for debugging)
-st.write(simulation_results.head())
-
-# Bar chart for Yearly Emissions by Material
-st.subheader("Yearly Emissions by Material")
-fig = px.bar(simulation_results, x='Material', y='Yearly_Emission',
-             title="Yearly Emission by Material",
+# Create a bar chart to visualize the data
+fig = px.bar(material_data, x='Material', y='Yearly_Emission', 
+             title="Yearly Emissions by Material",
              labels={'Yearly_Emission': 'Yearly Emission (g/m²/year)', 'Material': 'Material'})
 st.plotly_chart(fig)
 
-# Line chart for Health Risk by Material
-st.subheader("Health Risk by Material")
-fig2 = px.line(simulation_results, x='Material', y='Health_Risk',
-               title="Health Risk by Material",
-               labels={'Health_Risk': 'Health Risk', 'Material': 'Material'})
-st.plotly_chart(fig2)
-
-# Display a success message
-st.success("Simulation results saved to './results/health_simulation_results.csv'")
+# Optionally, you can save the results to a CSV file
+material_data.to_csv('./results/health_simulation_results.csv', index=False)
