@@ -1,10 +1,9 @@
 import pandas as pd
 
-def load_material_data(file_path):
-    """
-    Load material data from a CSV file.
-    """
-    return pd.read_csv(file_path)
+def load_material_data():
+    material_data = pd.read_csv('data/material_data.csv')  # Make sure the path is correct
+    print(material_data.columns)  # This will print the column names
+    return material_data
 
 def calculate_emissions(material_data):
     """
