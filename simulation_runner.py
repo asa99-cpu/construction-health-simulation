@@ -2,27 +2,40 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Simulating loading data
-simulation_results = pd.DataFrame({
-    'Material': ['Concrete', 'Cement'],
-    'Yearly_Emission': [500, 150],
-    'Health_Risk': [1.2, 0.8],
-    'Time_Period': ['2024', '2025']  # Example for animation (can be time or another variable)
-})
+# Simulating the creation of synthetic health data over 20 years
+years = list(range(2024, 2044))
+materials = ['Concrete', 'Cement']
 
-# Ensure the 'Yearly_Emission' is numeric for animation
-simulation_results['Yearly_Emission'] = pd.to_numeric(simulation_results['Yearly_Emission'], errors='coerce')
+# Example health risks associated with materials and emission rates (can be more detailed)
+health_risks = {
+    'Concrete': [1.2 * (1 + i*0.05) for i in range(20)],  # Increasing health risk over time
+    'Cement': [0.8 * (1 + i*0.03) for i in range(20)]     # Slower increase for Cement
+}
 
-# Create animated bar chart with Plotly
-fig = px.bar(simulation_results, 
-             x='Material', 
-             y='Yearly_Emission', 
-             color='Material', 
-             animation_frame='Time_Period',  # Animate over the time periods
-             animation_group='Material',  # Group by material for animation
-             range_y=[0, simulation_results['Yearly_Emission'].max() * 1.1],  # Adjust y-range
-             title="Yearly Emission of Materials Over Time",
-             labels={"Yearly_Emission": "Emission (g/m²/year)", "Material": "Material"})
+# Creating a DataFrame to hold health data over 20 years
+data = []
 
-# Show plot in Streamlit
+for material in materials:
+    for year in years:
+        health_data = {
+            'Year': year,
+            'Material': material,
+            'Health_Risk': health_risks[material][years.index(year)],
+        }
+        data.append(health_data)
+
+df_health = pd.DataFrame(data)
+
+# Create the animation using Plotly (animate health risk over the years)
+fig = px.line(df_health, 
+              x='Year', 
+              y='Health_Risk', 
+              color='Material', 
+              line_group='Material', 
+              animation_frame='Year', 
+              animation_group='Material', 
+              title="Health Risk Over Time due to Material Exposure",
+              labels={"Year": "Year", "Health_Risk": "Health Risk (Scale 0-10)", "Material": "Building Material"})
+
+# Show the animated chart in Streamlit
 st.plotly_chart(fig)
