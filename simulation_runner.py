@@ -14,6 +14,10 @@ material_data = calculate_emissions(material_data)
 health_data = pd.read_csv('./data/health_data.csv')
 simulation_results = calculate_health_risks(material_data, health_data)
 
+# Ensure 'Yearly_Emission' and 'Health_Risk' are numeric
+simulation_results['Yearly_Emission'] = pd.to_numeric(simulation_results['Yearly_Emission'], errors='coerce')
+simulation_results['Health_Risk'] = pd.to_numeric(simulation_results['Health_Risk'], errors='coerce')
+
 # Save the simulation results to a CSV file
 simulation_results.to_csv('./results/health_simulation_results.csv', index=False)
 
@@ -21,6 +25,9 @@ simulation_results.to_csv('./results/health_simulation_results.csv', index=False
 st.title("Construction Health Simulation Results")
 st.subheader("The simulation results are shown below:")
 st.write(simulation_results)
+
+# Check the structure of the simulation results (useful for debugging)
+st.write(simulation_results.head())
 
 # Bar chart for Yearly Emissions by Material
 st.subheader("Yearly Emissions by Material")
