@@ -1,1 +1,18 @@
+import pandas as pd
+
+# Data for the table
+material_data = {
+    "Material": ["Concrete", "Cement"],
+    "Emission_Rate (g/m²/year)": [5, 3],
+    "Toxicity_Score": [7, 8],
+    "Surface_Area (m²)": [100, 50]
+}
+
+# Create a DataFrame
+material_df = pd.DataFrame(material_data)
+
+# Save as a CSV file in the 'data' folder
+material_df.to_csv('./data/material_data.csv', index=False)
+
+print("material_data.csv created successfully!")
 
