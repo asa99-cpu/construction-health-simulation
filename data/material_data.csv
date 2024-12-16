@@ -1,1 +1,3 @@
-
+Material,Emission_Rate (g/m²/year),Toxicity_Score,Surface_Area (m²)
+Concrete,5,7,100
+Cement,3,8,50
