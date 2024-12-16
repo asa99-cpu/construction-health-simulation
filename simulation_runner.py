@@ -1,57 +1,100 @@
-import pandas as pd
-import plotly.express as px
-import streamlit as st
-import numpy as np
+import pygame
+import random
+import time
 
-# Simulate the timeline of a human's life over 20 years
-years = list(range(2024, 2044))  # From 2024 to 2044 (20 years)
-age_groups = ['Child', 'Adolescent', 'Adult', 'Senior']
+# Initialize Pygame
+pygame.init()
 
-# Simulated health effects over time for construction materials (e.g., Concrete, Cement)
-# The health risk scales here would depend on the years exposed to each material.
-health_risks = {
-    'Concrete': [0.5 + i*0.03 for i in range(20)],  # Gradually increasing health risk for Concrete
-    'Cement': [0.3 + i*0.02 for i in range(20)],    # Gradual increase for Cement, slower than Concrete
-}
+# Create a screen window
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption('Health Effects Simulation')
 
-# Creating a DataFrame to simulate a human's health over the 20 years
-data = []
+# Define colors
+WHITE = (255, 255, 255)
+LIGHT_BLUE = (173, 216, 230)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 
-for year in years:
-    for material in ['Concrete', 'Cement']:
-        # For simplicity, let's assume a person starts from a "Child" and goes through life stages.
-        age = year - 2024
-        if age < 5:
-            life_stage = 'Child'
-        elif 5 <= age < 12:
-            life_stage = 'Adolescent'
-        elif 12 <= age < 60:
-            life_stage = 'Adult'
-        else:
-            life_stage = 'Senior'
-        
-        health_data = {
-            'Year': year,
-            'Material': material,
-            'Health_Risk': health_risks[material][years.index(year)],
-            'Age': age,
-            'Life_Stage': life_stage,
-        }
-        data.append(health_data)
+# Load cartoon character (as a simple circle for now)
+character_radius = 40
 
-df_health = pd.DataFrame(data)
+# Health bar setup
+max_health = 100
+current_health = max_health
 
-# Create an animated bar chart using Plotly to visualize the health risk over time
-fig = px.bar(df_health, 
-             x='Year', 
-             y='Health_Risk', 
-             color='Material', 
-             animation_frame='Year', 
-             animation_group='Material', 
-             title="Health Risk Over Time due to Material Exposure",
-             labels={"Year": "Year", "Health_Risk": "Health Risk", "Material": "Construction Material", "Age": "Age Group"},
-             facet_col='Life_Stage',  # Creating a facet for each life stage (Child, Adolescent, etc.)
-             height=600)
+# Create the clock object to control frame rate
+clock = pygame.time.Clock()
 
-# Show the animated chart in Streamlit
-st.plotly_chart(fig)
+# Function to draw the room and materials
+def draw_room():
+    screen.fill(LIGHT_BLUE)  # Room color
+    pygame.draw.rect(screen, (200, 200, 200), (100, 400, 600, 150))  # Concrete floor
+    pygame.draw.rect(screen, (150, 150, 150), (300, 150, 200, 100))  # Cement wall
+    pygame.draw.rect(screen, (0, 0, 255), (100, 100, 50, 300))  # Window
+
+# Function to draw the character
+def draw_character():
+    pygame.draw.circle(screen, GREEN, (400, 250), character_radius)  # Draw a simple cartoon character
+
+# Function to simulate health degradation over time
+def update_health():
+    global current_health
+    if current_health > 0:
+        # Simulate health loss based on exposure to construction materials
+        current_health -= random.randint(1, 3)  # Simulate minor health deterioration
+        if current_health < 0:
+            current_health = 0
+
+# Function to display health bar
+def draw_health_bar():
+    pygame.draw.rect(screen, (255, 255, 255), (20, 20, 200, 20))  # Background of health bar
+    pygame.draw.rect(screen, RED, (20, 20, 2 * current_health, 20))  # Health bar filling
+
+# Function to show text (e.g., health state)
+def draw_text(text, font, color, x, y):
+    text_surface = font.render(text, True, color)
+    screen.blit(text_surface, (x, y))
+
+# Main game loop
+running = True
+font = pygame.font.SysFont('Arial', 24)
+
+year = 0
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Update health every frame
+    update_health()
+
+    # Draw room and character
+    draw_room()
+    draw_character()
+
+    # Draw health bar
+    draw_health_bar()
+
+    # Draw health text
+    draw_text(f"Health: {current_health}%", font, (255, 255, 255), 230, 20)
+
+    # Draw year text
+    draw_text(f"Year: {2024 + year}", font, (255, 255, 255), 350, 50)
+
+    # Simulate the year passing by
+    if year < 20:
+        draw_text(f"Living in a room with construction materials!", font, RED, 250, 550)
+
+    # Update the screen
+    pygame.display.flip()
+
+    # Control the frame rate (simulate passing time)
+    time.sleep(1)  # Pause for 1 second (1 year per second in the simulation)
+    year += 1
+
+    if year == 20:
+        draw_text("Health effects have taken their toll.", font, RED, 250, 550)
+
+    clock.tick(60)  # Set the frame rate to 60 FPS
+
+pygame.quit()
